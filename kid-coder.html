@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Projects</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #fafafa;
+      color: #333;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .projects {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .project-card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .project-card:hover {
+      border-color: #999;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .project-card:focus-within {
+      outline: 3px solid #333;
+      outline-offset: 2px;
+    }
+
+    .project-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .project-name {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #333;
+    }
+
+    .project-meta {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .new-project {
+      background: white;
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 160px;
+    }
+
+    .new-project:hover {
+      border-color: #999;
+      background: #f9f9f9;
+    }
+
+    .new-project:focus {
+      outline: 3px solid #333;
+      outline-offset: 2px;
+    }
+
+    .new-project-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .new-project-text {
+      font-size: 14px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #999;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-btn:hover {
+      color: #333;
+    }
+
+    .close-btn:focus {
+      outline: 2px solid #333;
+      outline-offset: 2px;
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .file-tree {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+    }
+
+    .file-item {
+      padding: 8px 12px;
+      margin: 2px 0;
+      background: #f5f5f5;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .file-item:hover {
+      background: #efefef;
+    }
+
+    .file-item:focus {
+      outline: 2px solid #333;
+      outline-offset: 0;
+    }
+
+    .file-icon {
+      margin-right: 8px;
+      font-size: 14px;
+    }
+
+    .file-name {
+      flex: 1;
+    }
+
+    .file-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: #555;
+    }
+
+    .btn:focus {
+      outline: 2px solid #333;
+      outline-offset: 2px;
+    }
+
+    .btn-secondary {
+      background: #ddd;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #ccc;
+    }
+
+    .editor {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: white;
+      z-index: 2000;
+      flex-direction: column;
+    }
+
+    .editor.open {
+      display: flex;
+    }
+
+    .editor-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f9f9f9;
+    }
+
+    .editor-filename {
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'Courier New', monospace;
+    }
+
+    .editor-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    textarea {
+      flex: 1;
+      border: none;
+      padding: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      resize: none;
+      outline: none;
+      line-height: 1.5;
+    }
+
+    textarea:focus {
+      background: #fffef5;
+    }
+
+    .save-status {
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #999;
+      background: #f5f5f5;
+      text-align: center;
+    }
+
+    .save-status.saved {
+      color: #4a7c4e;
+      background: #f0f5f1;
+    }
+
+    input[type="text"] {
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #333;
+      box-shadow: 0 0 0 3px rgba(51, 51, 51, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .modal-footer {
+      padding: 20px;
+      border-top: 1px solid #eee;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>My Projects</h1>
+      <p class="subtitle">Click a project to edit, or create a new one</p>
+    </header>
+
+    <div class="projects" id="projectsList">
+      <div class="project-card" tabindex="0" role="button" data-project="robot-game">
+        <div class="project-icon">🤖</div>
+        <div class="project-name">Robot Game</div>
+        <div class="project-meta">3 files • edited today</div>
+      </div>
+
+      <div class="project-card" tabindex="0" role="button" data-project="drawing">
+        <div class="project-icon">🎨</div>
+        <div class="project-name">Drawing App</div>
+        <div class="project-meta">2 files • edited yesterday</div>
+      </div>
+
+      <div class="project-card" tabindex="0" role="button" data-project="math-quiz">
+        <div class="project-icon">🧮</div>
+        <div class="project-name">Math Quiz</div>
+        <div class="project-meta">4 files • edited last week</div>
+      </div>
+
+      <button class="new-project" tabindex="0" id="newProjectBtn">
+        <div class="new-project-icon">➕</div>
+        <div class="new-project-text">New Project</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- New Project Modal -->
+  <div class="modal" id="newProjectModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">New Project</div>
+        <button class="close-btn" onclick="closeNewProjectModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Project Name</label>
+          <input type="text" id="projectNameInput" placeholder="e.g., My Cool Game">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeNewProjectModal()">Cancel</button>
+        <button class="btn" onclick="createProject()">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project Files Modal -->
+  <div class="modal" id="projectModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="projectTitle">Robot Game</div>
+        <button class="close-btn" onclick="closeProjectModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="file-tree" id="fileList">
+          <div class="file-item" tabindex="0" role="button" onclick="openFile('index.html')">
+            <span class="file-icon">📄</span>
+            <span class="file-name">index.html</span>
+            <div class="file-actions">
+              <button class="btn" style="padding: 4px 8px; font-size: 11px;" onclick="openFile('index.html'); event.stopPropagation();">Edit</button>
+            </div>
+          </div>
+          <div class="file-item" tabindex="0" role="button" onclick="openFile('style.css')">
+            <span class="file-icon">🎨</span>
+            <span class="file-name">style.css</span>
+            <div class="file-actions">
+              <button class="btn" style="padding: 4px 8px; font-size: 11px;" onclick="openFile('style.css'); event.stopPropagation();">Edit</button>
+            </div>
+          </div>
+          <div class="file-item" tabindex="0" role="button" onclick="openFile('script.js')">
+            <span class="file-icon">⚙️</span>
+            <span class="file-name">script.js</span>
+            <div class="file-actions">
+              <button class="btn" style="padding: 4px 8px; font-size: 11px;" onclick="openFile('script.js'); event.stopPropagation();">Edit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeProjectModal()">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Editor -->
+  <div class="editor" id="editor">
+    <div class="editor-header">
+      <div class="editor-filename" id="editorFilename">index.html</div>
+      <div class="editor-actions">
+        <button class="btn btn-secondary" onclick="closeEditor()">Back</button>
+        <button class="btn" onclick="saveFile()">Save</button>
+      </div>
+    </div>
+    <textarea id="editorContent" spellcheck="false"></textarea>
+    <div class="save-status" id="saveStatus"></div>
+  </div>
+
+  <script>
+    const sampleFiles = {
+      'index.html': `<!DOCTYPE html>
+<html>
+<head>
+  <title>Robot Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>🤖 Robot Game</h1>
+  <button id="startBtn">Start Game</button>
+  <script src="script.js"><\/script>
+</body>
+</html>`,
+      'style.css': `body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #f0f0f0;
+}
+
+h1 {
+  color: #333;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}`,
+      'script.js': `console.log('Game starting!');
+
+document.getElementById('startBtn').addEventListener('click', () => {
+  alert('Game started!');
+});`
+    };
+
+    let currentProject = null;
+    let currentFile = null;
+
+    // Project card clicks
+    document.querySelectorAll('.project-card').forEach(card => {
+      card.addEventListener('click', () => {
+        currentProject = card.dataset.project;
+        openProject();
+      });
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          currentProject = card.dataset.project;
+          openProject();
+        }
+      });
+    });
+
+    document.getElementById('newProjectBtn').addEventListener('click', openNewProjectModal);
+    document.getElementById('newProjectBtn').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') openNewProjectModal();
+    });
+
+    function openNewProjectModal() {
+      document.getElementById('newProjectModal').classList.add('open');
+      document.getElementById('projectNameInput').focus();
+    }
+
+    function closeNewProjectModal() {
+      document.getElementById('newProjectModal').classList.remove('open');
+    }
+
+    function createProject() {
+      const name = document.getElementById('projectNameInput').value.trim();
+      if (name) {
+        alert(`Created "${name}" – real backend would save to GitHub!`);
+        closeNewProjectModal();
+        document.getElementById('projectNameInput').value = '';
+      }
+    }
+
+    function openProject() {
+      document.getElementById('projectTitle').textContent = currentProject;
+      document.getElementById('projectModal').classList.add('open');
+    }
+
+    function closeProjectModal() {
+      document.getElementById('projectModal').classList.remove('open');
+    }
+
+    function openFile(filename) {
+      currentFile = filename;
+      document.getElementById('editorFilename').textContent = filename;
+      document.getElementById('editorContent').value = sampleFiles[filename] || '';
+      document.getElementById('saveStatus').textContent = '';
+      document.getElementById('editor').classList.add('open');
+      document.getElementById('projectModal').classList.remove('open');
+      document.getElementById('editorContent').focus();
+    }
+
+    function closeEditor() {
+      document.getElementById('editor').classList.remove('open');
+      openProject();
+    }
+
+    function saveFile() {
+      const content = document.getElementById('editorContent').value;
+      sampleFiles[currentFile] = content;
+      
+      // Show save feedback
+      const status = document.getElementById('saveStatus');
+      status.textContent = '✓ Saved to GitHub!';
+      status.classList.add('saved');
+      
+      setTimeout(() => {
+        status.classList.remove('saved');
+        status.textContent = '';
+      }, 2000);
+    }
+
+    // Close modals on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (document.getElementById('editor').classList.contains('open')) {
+          closeEditor();
+        } else if (document.getElementById('projectModal').classList.contains('open')) {
+          closeProjectModal();
+        } else if (document.getElementById('newProjectModal').classList.contains('open')) {
+          closeNewProjectModal();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
